@@ -1,14 +1,11 @@
 var backImage,backgr;
 var player, player_running;
 var ground,ground_img;
-
 var FoodGroup, bananaImage;
 var obstaclesGroup, obstacle_img,obstacle_img2,obstaclesGroup2;
-
 var END =0;
 var PLAY =1;
 var gameState = PLAY;
-
 var gameOver; 
 var score=0;
 var attempts=3;
@@ -38,11 +35,11 @@ function preload(){
 function setup() {
 
   //Creating Canvas
-  createCanvas(800,400);
+  createCanvas(windowWidth,windowHeight);
 
 
   //Creating Background Sprite
-  backgr=createSprite(0,0,800,400);
+  backgr=createSprite(height/2,height/6,800,400);
   //Adding Image To Background
   backgr.addImage(backImage);
   //Scaling Background
@@ -54,11 +51,11 @@ function setup() {
 
 
   //Creating Player (Monkey) Sprite
-  player = createSprite(100,310,20,50);
+  player = createSprite(100,350,20,50);
   //Adding Animation to Player (Monkey)
   player.addAnimation("running",player_running)
   //Scaling PLayer (Monkey)
-  player.scale=0.19
+  player.scale=0.15
 
 
   //Creating Ground Sprite
@@ -80,135 +77,130 @@ function setup() {
 
   //Giving value 0 to Score
   score = 0;
-}
 
+}
 function draw() { 
+
+  //Giving Background color
   background(0);
+  //Drawing Sprites
   drawSprites();
-  
+
+  //Giving stroke, size, font & fill to Score
   stroke("white");
+  strokeWeight(4)
   textSize(20);
-  fill("white");
-  text("Score: "+ score, 550,50);
+  textFont("Comic Sans MS");
+  fill("black");
+  text("Score : "+ score, 550,50);
   
+  //if gameState is Play then what will happen
   if(gameState===PLAY){
-  
-  if(backgr.x<100){
-    backgr.x=backgr.width/2;
-  }
-  
+      
+    
+    //if background is more than 130 then background should loop
+    if(backgr.x<130){
+       backgr.x=backgr.width/2;
+    }
+    //if FoodGroup is touching player then destoy each ,increase scale of player & incraese the score
     if(FoodGroup.isTouching(player)){
-      //Student 2-Challenge 2
       //destroy the food group
+      FoodGroup.destroyEach();
       //increase the scale of player
+      player.scale=player.scale+0.02
       //increase the score
-      
+      score=score+1 
     }
-  
+    // if obstacle 2 is touching player then destroy each ,decrease the scale of player 
     if(obstaclesGroup2.isTouching(player)){
-      //Student 4-Challenge 2
       //destroy the obstacleGroup2
-      //descrease the scale of the player
-      
+      obstaclesGroup2.destroyEach();
+      //decrease the scale of the player
+      player.scale=player.scale-0.02
     }
-   
-    //use keydown(space) to add jump effect- Student 1-challenge 2
+    //if keydown(space) then give jump effect
     if (keyDown("space")) {
       player.velocityY = -13;
     }
-    //Add the gravity- - Student 1-challenge 2
+    //Adding the gravity
     player.velocityY = player.velocityY + 0.8
-
-    //make the player collide with the ground- Student 1-challenge 2
+    //Make the player collide with the ground
     player.collide(ground)
-
+    //Calling function spawn food
     spawnFood();
+    //Calling function spawn obstacle
     spawnObstacles();  
-    spawnObstacles2();  
+    //Calling function spawn obstacle 2
+    spawnObstacles2();
+    //if obstacle group is touching player then gamestate will be End
     if(obstaclesGroup.isTouching(player)){ 
-      //student 3-challenge 2
         gameState = END;
-    }
-  }else if(gameState === END){
+  }
 
+    //if gamestate is End then what
+    }else if(gameState === END){
+    
+    //Giving velocity 0 to background
     backgr.velocityX = 0;
+    //Player visible to false
     player.visible = false;
     
+    //Food group is to destroy Each
     FoodGroup.destroyEach();
+    //Obstacle group is to destroy Each
     obstaclesGroup.destroyEach();
-
-    textSize(30);
-    fill(255);
+    //Obstacle group 2 is to destroy Each
+    obstaclesGroup2.destroyEach();
+    
+    //Giving stroke, size, font & fill to Game Over
+    stroke("white");
+    strokeWeight(4)
+    textSize(42);
+    textFont("Comic Sans MS");
+    fill("black");
     text("Game Over!", 300,220);
   }
+  
+   
 }
+  
 
 function spawnFood() {
-  //Student 2
-  if (frameCount % 130 === 0){
-    var banana = createSprite(600,165,10,40);
-    banana.velocityX = -3.2;
+
+  //Creating space intervals between spawning of banana
+  if (frameCount % 280 === 0){
+    var banana = createSprite(windowWidth+20,165,10,40);
+    banana.velocityX = -(4 + 2*score/100);
     banana.addImage(bananaImage)
-    
-     //assign scale and lifetime to the obstacle           
-     banana.scale = 0.1;
-     banana.lifetime = 300;
-    
-    //add each obstacle to the group
-     FoodGroup.add(banana);
+    player.depth = banana.depth + 1;     
+    banana.scale = 0.1;
+    banana.lifetime = 300;
+    banana.y = random(100,200);
+    FoodGroup.add(banana);
   }
-  //write code here to  spawn the bananas with a space interval.
-  //create a sprite for banana
-  //add a banana image and scale it
-  //banana.y = random(120,200);    
-
-  //add velocityx to make the banana to move forward
-
-  //add lifetime to the banana
-  //move depth and random code inside framecount
-  //add the foodgroup 
-
-  //player.depth = banana.depth + 1;
-    
-  
 }
 
 function spawnObstacles() {
-  //student 3-Challenge 1
-  //write code here to spawn the obstacles
-  if (frameCount % 150 === 0){
-    var obstacle = createSprite(820,310,10,40);
-    obstacle.velocityX = -3.2;
-    obstacle.addImage(obstacle_img)
-     //assign scale and lifetime to the obstacle           
-    obstacle.scale = 0.16;
+  if (frameCount % 210 === 0){
+    var obstacle = createSprite(windowWidth+20,319,10,40);
+    obstacle.velocityX=-(4 + 2*score/100);
+    obstacle.addImage(obstacle_img)           
+    obstacle.scale = 0.13;
     obstacle.lifetime = 300;
-    
-    //add each obstacle to the group
     obstaclesGroup.add(obstacle);
   }
-  //write code here to  spawn the obstacles with a space interval.
-  //obstacle.velocityX=-(4 + 2*score/100); 
-  //move the code of velocity indide framecount
-  //create a sprite for obstacles
-  //add a obstacles image and scale it
-  //add lifetime to the obstacles
-  //add the obstaclesGroup
   
 }
 function spawnObstacles2() {
-  //student 4-Challenge 1
-  //write code here to  spawn the obstacle2 with a space interval.
-  //create a sprite for obstacle2
-  //add a obstacle2 image and scale it
-   //add velocityx to make the obstacle2 to move forward
-
-  //add lifetime to the obstacle2
-  //move random code inside framecount
-  //add the obstacleGroup2
-
-  //obstacle2.y = random(100,200);    
-   
+  if (frameCount % 125 === 0){
+    var obstacle2 = createSprite(windowWidth+20,350,10,40);
+    obstacle2.velocityX=-(4 + 2*score/100);
+    obstacle2.addImage(obstacle_img2)         
+    obstacle2.scale = 0.021;
+    obstacle2.lifetime = 300;
+    obstacle2.y = random(100,200);
+    obstaclesGroup2.add(obstacle2);
+  }
 }
 //      MADE BY 
 //   (: BHAGYA :)
